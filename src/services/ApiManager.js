@@ -1,4 +1,16 @@
+import  axios from "axios";
 
-const BASE_URL = 'http://localhost:808/api';
+const ApiManager = axios.create({
+    baseURL: 'http://localhost:8080/api',
+    responseType: 'json',
+    withCredentials: true,
+});
 
-export default BASE_URL;
+// const ApiManager = axios.create({
+//     baseURL: 'http://54.242.54.140:8080/api',
+//     responseType: 'json',
+//     withCredentials: true,
+// });
+
+
+export default ApiManager;

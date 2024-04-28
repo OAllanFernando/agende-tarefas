@@ -1,8 +1,8 @@
 import { createContext, useEffect, useState } from "react";
 import Register from "../services/Login/register";
-import Authenticate from "../services/Login/authenticate";
+import { Authenticate, findMyUser } from "../services/Login/authenticate";
 
-const AuthContext = createContext({});
+export const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -26,17 +26,28 @@ export const AuthProvider = ({ children }) => {
     // rememberMe is a boolean valuer that indicates if the user wants to keep logged in
     const signIn = async (login, pass, remenberMe) => {
 
-        if(!login || !pass) {
+        if (!login || !pass) {
             return "Email e senha são obrigatórios";
         }
 
-        const token = await Authenticate(login, pass, remenberMe);
-        if(!token) {
+        const token = await Authenticate(login, pass, true);
+
+        // console.log(token.id_token);
+
+        if (!token) {
             return "Email ou senha inválidos";
         }
 
-        localStorage.setItem("@Auth:token", JSON.stringify(token));
-        setUser({ login: login, token: token.id_token });
+        const user = await findMyUser(token.id_token);
+
+        if (!user) {
+            return "Erro ao buscar usuário";
+        }
+        
+        localStorage.setItem("@Auth:token", JSON.stringify(token.id_token));
+        setUser({ login: login, token: token.id_token, name: user.firstName, lastName: user.lastName, email: user.email ? user.email : "Não Informado"});
+
+        return true;
 
     };
 
@@ -48,19 +59,29 @@ export const AuthProvider = ({ children }) => {
     };
 
     const signUp = async (firstName, lastName, login, password, email) => {
-        if(!login || !password || !firstName) {
+        
+        if (!login || !password || !firstName) {
             return "Email, senha e nome são obrigatórios";
         }
-        
+
         const response = await Register(firstName, lastName, login, password, email);
-        if(!response) {
-            return "Erro ao cadastrar";
+
+        console.log("aaaaaaaaaaa", response);
+        if (!response) {
+            return 0;
         }
+        if(response === 1){
+            return 1;
+        }
+        if(response === 2){
+            return 2;
+        }
+
         return true;
     }
 
     return (
-        <AuthContext.Provider value={{user, signed: !!user, signIn, signUp, signOut}}>
+        <AuthContext.Provider value={{ user, signed: !!user, signIn, signUp, signOut }}>
             {children}
         </AuthContext.Provider>
     );

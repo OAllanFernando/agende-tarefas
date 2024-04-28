@@ -9,6 +9,6 @@ const Input = ({ type, placeholder, value, onChange}) =>{
             placeholder={placeholder}
             type={type}
         />  
-    )
-}
+    );
+};
 export default Input;

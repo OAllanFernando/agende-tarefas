@@ -9,7 +9,7 @@ export const Container = styled.div`
     height: 100vh;
 `;
 
-export const content = styled.div`
+export const Content = styled.div`
     gap: 10px;
     box-shadow: 0 1px 2px #0003;
     padding: 20px;
@@ -25,9 +25,9 @@ export const content = styled.div`
 `;
 
 export const Label = styled.label`
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
-    color: #676767;
+    color: #00000;
 `;
 
 export const LabelSingUp = styled.label`
