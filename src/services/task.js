@@ -31,7 +31,7 @@ const findAllTask = async (user_id, token, page, pageSize) => {
 
 const createTask = async (task, token) => {
     try {
-        
+
         if (task.executionTime) {
             task.executionTime = new Date(task.executionTime).toISOString();
         }
@@ -83,4 +83,23 @@ const updateTask = async (task, token) => {
     }
 }
 
-export { findAllTask, createTask, updateTask };
+const deleteTask = async (task, token) => {
+    try {
+        const response = await ApiManager(`/tasks/${task}`, {
+            method: "DELETE",
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if(response.status === 204) {
+            return response.status;
+        }
+    } catch (error) {
+        console.error("Error deleting task:", error);
+        return false;
+    }
+}
+
+export { findAllTask, createTask, updateTask, deleteTask };

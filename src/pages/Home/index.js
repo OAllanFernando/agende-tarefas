@@ -1,6 +1,6 @@
 import React from "react";
 import * as Style from "./styles";
-import { createTask, findAllTask, updateTask } from "../../services/task";
+import { createTask, deleteTask, findAllTask, updateTask } from "../../services/task";
 import useAuth from "../../hooks/useAuth";
 import { format } from 'date-fns';
 
@@ -130,8 +130,20 @@ const Index = () => {
         setIsCadOpem(true);
     }
 
-    const deleteTask = (task) => {
+    const deleteTaskAsk = async (task) => {
         console.log("delete", task);
+        const ask = window.confirm("Deseja realmente excluir a tarefa?");
+
+        console.log(ask);
+        if (ask) {
+            const response = await deleteTask(task.id, user.token);
+            if (response !== 204) {
+                setError("Erro ao excluir tarefa.");
+                return;
+            }
+            setFlush(flush + 1);
+        }
+        
     }
 
 
@@ -217,7 +229,7 @@ const Index = () => {
                                         </Style.TableCell>
                                         <Style.TableButtonCell>
                                             <Style.EditButton onClick={() => { editTask(task) }}>Editar</Style.EditButton>
-                                            <Style.DeleteButton onClick={() => { deleteTask(task) }}>Excluir</Style.DeleteButton>
+                                            <Style.DeleteButton onClick={() => { deleteTaskAsk(task) }}>Excluir</Style.DeleteButton>
                                         </Style.TableButtonCell>
                                     </Style.TableRow>
                                 ))}
