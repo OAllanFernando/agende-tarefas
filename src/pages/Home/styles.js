@@ -24,9 +24,10 @@ export const Body = styled.div`
 `;
 
 export const BodyHeader = styled.div`
-    padding: 5px;
+   
     display: flex;
     justify-content: space-between;
+    width: 100%;
 `;
 
 export const Footer = styled.div`

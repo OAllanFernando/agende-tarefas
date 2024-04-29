@@ -129,4 +129,88 @@ const getTaskByTitle = async (userId, name, token, page, pageSize) => {
     }
 }
 
-export { findAllTask, createTask, updateTask, deleteTask, getTaskByTitle };
+const getTaskByDay = async (userId, date, token, page, pageSize) => {
+    try {
+        const response = await ApiManager(`/tasks/tasks-by-day/${date}/${userId}?page=${page}&size=${pageSize}`, {
+            method: "GET",
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response) {
+            return [];
+        }
+        if (response.data.length === 0) {
+            return [];
+        }
+        const totalCount = response.headers['x-total-count']; // Quantidade total de itens
+
+        console.log(response);
+        return {
+            data: response.data,
+            totalCount: totalCount,
+        };
+
+    } catch (error) {
+        return false;
+    }
+}
+
+const getTaskByWeek = async (userId, date, token, page, pageSize) => {
+    try {
+        const response = await ApiManager(`/tasks/tasks-by-week/${date}/${userId}?page=${page}&size=${pageSize}`, {
+            method: "GET",
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response) {
+            return [];
+        }
+        if (response.data.length === 0) {
+            return [];
+        }
+        const totalCount = response.headers['x-total-count']; // Quantidade total de itens
+
+        console.log(response);
+        return {
+            data: response.data,
+            totalCount: totalCount,
+        };
+
+    } catch (error) {
+        return false;
+    }
+}
+
+const getTaskByMonth = async (userId, date, token, page, pageSize) => {
+    try {
+        const response = await ApiManager(`/tasks/tasks-by-month/${date}/${userId}?page=${page}&size=${pageSize}`, {
+            method: "GET",
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response) {
+            return [];
+        }
+        if (response.data.length === 0) {
+            return [];
+        }
+        const totalCount = response.headers['x-total-count']; // Quantidade total de itens
+
+        console.log(response);
+        return {
+            data: response.data,
+            totalCount: totalCount,
+        };
+
+    } catch (error) {
+        return false;
+    }
+}
+
+export { findAllTask, createTask, updateTask, deleteTask, getTaskByTitle, getTaskByDay, getTaskByWeek, getTaskByMonth};

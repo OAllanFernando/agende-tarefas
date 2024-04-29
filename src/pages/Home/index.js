@@ -1,6 +1,6 @@
 import React from "react";
 import * as Style from "./styles";
-import { createTask, deleteTask, findAllTask, getTaskByTitle, updateTask } from "../../services/task";
+import { createTask, deleteTask, findAllTask, getTaskByDay, getTaskByMonth, getTaskByTitle, getTaskByWeek, updateTask } from "../../services/task";
 import useAuth from "../../hooks/useAuth";
 import { format } from 'date-fns';
 import Input from "../../components/Inputs";
@@ -14,6 +14,9 @@ const Index = () => {
     const [isCadOpem, setIsCadOpem] = React.useState(false);
     const [flush, setFlush] = React.useState(0);
     const [search, setSearch] = React.useState("");
+    const [exibition, setExibition] = React.useState(0);
+
+    const [dateToFind, setDateToFind] = React.useState(null);
 
 
     const [formData, setFormData] = React.useState({
@@ -41,15 +44,24 @@ const Index = () => {
                 let mytasks;
                 if (search !== "") {
                     mytasks = await getTaskByTitle(user.id, search, user.token, page, pageSize);
-                } else {
+                } else if (exibition === 0) {
                     mytasks = await findAllTask(user.id, user.token, page, pageSize);
+                } else if (exibition === 1) {
+                    mytasks = await getTaskByDay(user.id, dateToFind, user.token, page, pageSize);
                 }
-                if (mytasks.data.length === 0) {
+                else if (exibition === 2) {
+                    mytasks = await getTaskByWeek(user.id, dateToFind, user.token, page, pageSize);
+                }
+                else if (exibition === 3) {
+                    mytasks = await getTaskByMonth(user.id, dateToFind, user.token, page, pageSize);
+                }
+                if (mytasks.length === 0 || mytasks.data.length === 0) {
                     setError("Nenhuma tarefa cadastrada.");
                 }
                 setTasks(mytasks.data);
                 setMaxPage(Math.ceil(mytasks.totalCount / pageSize) - 1);
             } catch (error) {
+                console.log(error);
                 setError("Erro ao buscar tarefas.");
             } finally {
                 setLoading(false);
@@ -59,12 +71,22 @@ const Index = () => {
         fetchData();
     }, [user, page, pageSize, maxPage, flush, search]);
 
-    // Função para atualizar o tamanho da página
+
     const handlePageSizeChange = (e) => {
         console.log(e.target.value);
         setPage(0)
         setPageSize(parseInt(e.target.value)); // Parse para garantir que é um número inteiro
     }
+
+    const handleExibitionChange = (e) => {
+        console.log(e.target.value);
+        setDateToFind(null)
+        setExibition(parseInt(e.target.value))
+        if(parseInt(e.target.value) === 0){
+            setFlush(flush + 1);
+        }
+    }
+
 
     const openModal = () => {
         console.log("open modal");
@@ -90,6 +112,10 @@ const Index = () => {
         setErrorEdit("");
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
+    const handleChangeDateToFind = (e) => {
+        setDateToFind(e.target.value);
+    }
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -149,6 +175,13 @@ const Index = () => {
 
     }
 
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        setExibition(0);
+        setDateToFind(null);
+        setSearch(e.target.value)
+        
+    }
 
 
     return (
@@ -200,13 +233,28 @@ const Index = () => {
                     </Style.Content>
                 )}
                 <Style.Content>
+                    <Style.BodyHeader>
+                        <Input
+                            type="text"
+                            placeholder="Pesquisar"
+                            value={search}
+                            onChange={handleSearch}
+                        />
 
-                    <Input
-                        type="text"
-                        placeholder="Pesquisar"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
+                        <span> Exibir por: </span>
+                        <select value={exibition} onChange={handleExibitionChange}>
+                            <option value="0">Todos</option>
+                            <option value="1">Dia</option>
+                            <option value="2">Semana</option>
+                            <option value="3">Mês</option>
+                        </select>
+                        {
+                            exibition === 1 ? <input type="date" id="day" name="day" value={dateToFind} onChange={handleChangeDateToFind} /> : exibition === 2 ? <input type="week" id="month" name="month" value={dateToFind} onChange={handleChangeDateToFind} /> : exibition === 3 ? <input type="month" id="month" name="month" value={dateToFind} onChange={handleChangeDateToFind} /> : ""
+                        }
+                        {
+                            exibition === 1 || exibition === 2 || exibition === 3 ? <Style.Button disabled={dateToFind ? false : true} onClick={() => { setFlush(flush + 1) }}>Buscar</Style.Button> : null
+                        }
+                    </Style.BodyHeader>
                     {loading ? (
                         <Style.Label>Loading...</Style.Label>
                     ) : error ? (
