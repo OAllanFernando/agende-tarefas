@@ -57,4 +57,30 @@ const createTask = async (task, token) => {
     }
 };
 
-export { findAllTask, createTask };
+const updateTask = async (task, token) => {
+    try {
+        if (task.executionTime) {
+            task.executionTime = new Date(task.executionTime).toISOString();
+        }
+
+        const response = await ApiManager(`/tasks/${task.id}`, {
+            method: "PATCH",
+            headers: {
+                'content-type': 'application/json',
+                "Authorization": `Bearer ${token}`
+            },
+            data: task
+        });
+
+        // Verificar se a resposta foi bem-sucedida (código de status 200)
+        if (response.status === 200) {
+            return response.status;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error updating task:", error);
+        return false;
+    }
+}
+
+export { findAllTask, createTask, updateTask };

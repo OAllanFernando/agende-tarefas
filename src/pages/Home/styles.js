@@ -180,3 +180,32 @@ export const SubmitButton = styled.button`
         background-color: #0056b3;
     }
 `;
+
+
+export const EditButton = styled.button`
+    padding: 10px 20px;
+    border: none;
+    background-color: #ffe600;
+    color: #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+`;
+
+export const DeleteButton = styled.button`
+    padding: 10px 20px;
+    border: none;
+    background-color: #ff0000;
+    color: #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+`;

@@ -1,16 +1,18 @@
 import React from "react";
 import * as Style from "./styles";
-import { createTask, findAllTask } from "../../services/task";
+import { createTask, findAllTask, updateTask } from "../../services/task";
 import useAuth from "../../hooks/useAuth";
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 
 const Index = () => {
     const { user } = useAuth();
     const [tasks, setTasks] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
+    const [errorEdit, setErrorEdit] = React.useState("");
     const [isCadOpem, setIsCadOpem] = React.useState(false);
     const [flush, setFlush] = React.useState(0);
+
 
     const [formData, setFormData] = React.useState({
         id: null,
@@ -81,16 +83,57 @@ const Index = () => {
     };
 
     const handleChange = (e) => {
+        console.log("change", e.target.name, e.target.value);
+        setErrorEdit("");
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("submit", formData);
-        const response = await createTask(formData, user.token);
+        let response;
+        if (formData.id) {
+            response = await updateTask(formData, user.token);
+        } else {
+            response = await createTask(formData, user.token);
+        }
+
+        if (response !== 201 && response !== 200) {
+            setErrorEdit("Erro ao salvar tarefa.");
+            return;
+        }
+
         closeModal();
         setFlush(flush + 1);
     }
+
+    const editTask = (task) => {
+        console.log("edit", task);
+        
+        const originalDateTime = new Date(task.executionTime);
+        originalDateTime.setHours(originalDateTime.getHours() - 3); 
+
+        
+        const formattedDateTime = originalDateTime.toISOString().slice(0, 16);
+
+        const taskEdit = {
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            executionTime: formattedDateTime,
+            durationMin: task.durationMin,
+            user: {
+                id: user.id,
+            }
+        }
+        setFormData(taskEdit);
+        setIsCadOpem(true);
+    }
+
+    const deleteTask = (task) => {
+        console.log("delete", task);
+    }
+
 
 
     return (
@@ -119,6 +162,7 @@ const Index = () => {
 
                 {isCadOpem && (
                     <Style.Content>
+                        <Style.LabelError>{errorEdit}</Style.LabelError>
                         <Style.Form onSubmit={handleSubmit}>
                             <Style.FormGroup>
                                 <label htmlFor="title">Título:</label>
@@ -172,8 +216,8 @@ const Index = () => {
                                             {task.durationMin} Min
                                         </Style.TableCell>
                                         <Style.TableButtonCell>
-                                            <Style.Button>Edit</Style.Button>
-                                            <Style.Button>Delete</Style.Button>
+                                            <Style.EditButton onClick={() => { editTask(task) }}>Editar</Style.EditButton>
+                                            <Style.DeleteButton onClick={() => { deleteTask(task) }}>Excluir</Style.DeleteButton>
                                         </Style.TableButtonCell>
                                     </Style.TableRow>
                                 ))}
