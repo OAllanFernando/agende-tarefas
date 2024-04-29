@@ -1,8 +1,9 @@
 import React from "react";
 import * as Style from "./styles";
-import { createTask, deleteTask, findAllTask, updateTask } from "../../services/task";
+import { createTask, deleteTask, findAllTask, getTaskByTitle, updateTask } from "../../services/task";
 import useAuth from "../../hooks/useAuth";
 import { format } from 'date-fns';
+import Input from "../../components/Inputs";
 
 const Index = () => {
     const { user } = useAuth();
@@ -12,6 +13,7 @@ const Index = () => {
     const [errorEdit, setErrorEdit] = React.useState("");
     const [isCadOpem, setIsCadOpem] = React.useState(false);
     const [flush, setFlush] = React.useState(0);
+    const [search, setSearch] = React.useState("");
 
 
     const [formData, setFormData] = React.useState({
@@ -34,18 +36,19 @@ const Index = () => {
     React.useEffect(() => {
         const fetchData = async () => {
             try {
-
-                console.log(user);
                 setLoading(true);
                 setError("");
-                const mytasks = await findAllTask(user.id, user.token, page, pageSize);
-                console.log(mytasks);
+                let mytasks;
+                if (search !== "") {
+                    mytasks = await getTaskByTitle(user.id, search, user.token, page, pageSize);
+                } else {
+                    mytasks = await findAllTask(user.id, user.token, page, pageSize);
+                }
                 if (mytasks.data.length === 0) {
                     setError("Nenhuma tarefa cadastrada.");
                 }
                 setTasks(mytasks.data);
                 setMaxPage(Math.ceil(mytasks.totalCount / pageSize) - 1);
-                console.log(maxPage, "aaaaaaaaaaaaaaaaaaaaaaaa", Math.ceil(mytasks.totalCount / pageSize));
             } catch (error) {
                 setError("Erro ao buscar tarefas.");
             } finally {
@@ -54,7 +57,7 @@ const Index = () => {
         };
 
         fetchData();
-    }, [user, page, pageSize, maxPage, flush]);
+    }, [user, page, pageSize, maxPage, flush, search]);
 
     // Função para atualizar o tamanho da página
     const handlePageSizeChange = (e) => {
@@ -109,11 +112,11 @@ const Index = () => {
 
     const editTask = (task) => {
         console.log("edit", task);
-        
-        const originalDateTime = new Date(task.executionTime);
-        originalDateTime.setHours(originalDateTime.getHours() - 3); 
 
-        
+        const originalDateTime = new Date(task.executionTime);
+        originalDateTime.setHours(originalDateTime.getHours() - 3);
+
+
         const formattedDateTime = originalDateTime.toISOString().slice(0, 16);
 
         const taskEdit = {
@@ -143,7 +146,7 @@ const Index = () => {
             }
             setFlush(flush + 1);
         }
-        
+
     }
 
 
@@ -197,6 +200,13 @@ const Index = () => {
                     </Style.Content>
                 )}
                 <Style.Content>
+
+                    <Input
+                        type="text"
+                        placeholder="Pesquisar"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
                     {loading ? (
                         <Style.Label>Loading...</Style.Label>
                     ) : error ? (

@@ -16,7 +16,6 @@ const findAllTask = async (user_id, token, page, pageSize) => {
             return [];
         }
 
-        // Acessar os cabeçalhos da resposta para obter informações de paginação
         const totalCount = response.headers['x-total-count']; // Quantidade total de itens
 
         console.log(response);
@@ -93,7 +92,7 @@ const deleteTask = async (task, token) => {
             }
         });
 
-        if(response.status === 204) {
+        if (response.status === 204) {
             return response.status;
         }
     } catch (error) {
@@ -102,4 +101,32 @@ const deleteTask = async (task, token) => {
     }
 }
 
-export { findAllTask, createTask, updateTask, deleteTask };
+const getTaskByTitle = async (userId, name, token, page, pageSize) => {
+    try {
+        const response = await ApiManager(`/tasks/tasks-by-title/${name}/${userId}?page=${page}&size=${pageSize}`, {
+            method: "GET",
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response) {
+            return [];
+        }
+        if (response.data.length === 0) {
+            return [];
+        }
+        const totalCount = response.headers['x-total-count']; // Quantidade total de itens
+
+        console.log(response);
+        return {
+            data: response.data,
+            totalCount: totalCount,
+        };
+
+    } catch (error) {
+        return false;
+    }
+}
+
+export { findAllTask, createTask, updateTask, deleteTask, getTaskByTitle };
