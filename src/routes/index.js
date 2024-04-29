@@ -7,10 +7,10 @@ import Signin from "../pages/Signin";
 
 import useAuth from "../hooks/useAuth";
 
-const Private = ({ Item }) => {
-    const signed = useAuth();
+const Private = ({ children }) => {
+    const { signed } = useAuth();
 
-    return signed ? <Item /> : <Signin />; 
+    return signed ? children : <Signin />; 
 }
 
 const RoutesApp = () => {
@@ -18,7 +18,7 @@ const RoutesApp = () => {
         <BrowserRouter>
             <Fragment>
                 <Routes>
-                    <Route exact path="/home" element={<Private Item={Home} />} />
+                    <Route exact path="/home" element={<Private><Home /></Private>} />
                     <Route path="/signin" element={<Signin />} />
                     <Route exact path="/signup" element={<Signup />} />
                     <Route path="*" element={<Signin />} />
