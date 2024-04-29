@@ -132,3 +132,51 @@ export const ButtonNewTask = styled.button`
         background-color: #0056b3;
     }
 `
+export const gridCad = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+`;
+
+
+export const Form = styled.form`
+    width: 100%;
+`;
+
+export const FormGroup = styled.div`
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+
+    label {
+        margin-bottom: 5px;
+    }
+
+    input,
+    textarea {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+`;
+
+export const SubmitButton = styled.button`
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+`;

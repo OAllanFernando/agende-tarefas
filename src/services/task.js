@@ -29,4 +29,32 @@ const findAllTask = async (user_id, token, page, pageSize) => {
     }
 }
 
-export { findAllTask };
+const createTask = async (task, token) => {
+    try {
+        
+        if (task.executionTime) {
+            task.executionTime = new Date(task.executionTime).toISOString();
+        }
+
+        console.log(task, token);
+        const response = await ApiManager("/tasks", {
+            method: "POST",
+            headers: {
+                'content-type': 'application/json',
+                "Authorization": `Bearer ${token}`
+            },
+            data: task
+        });
+
+        // Verificar se a resposta foi bem-sucedida (código de status 201)
+        if (response.status === 201) {
+            return response.status;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error creating task:", error);
+        return false;
+    }
+};
+
+export { findAllTask, createTask };

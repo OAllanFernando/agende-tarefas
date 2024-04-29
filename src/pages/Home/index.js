@@ -1,14 +1,28 @@
 import React from "react";
 import * as Style from "./styles";
-import { findAllTask } from "../../services/task";
+import { createTask, findAllTask } from "../../services/task";
 import useAuth from "../../hooks/useAuth";
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 
 const Index = () => {
     const { user } = useAuth();
     const [tasks, setTasks] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
+    const [isCadOpem, setIsCadOpem] = React.useState(false);
+    const [flush, setFlush] = React.useState(0);
+
+    const [formData, setFormData] = React.useState({
+        id: null,
+        title: "",
+        description: "",
+        executionTime: "",
+        durationMin: "",
+        user: {
+            id: user.id,
+        }
+    });
+
 
     const [page, setPage] = React.useState(0);
     const [pageSize, setPageSize] = React.useState(5);
@@ -28,7 +42,7 @@ const Index = () => {
                     setError("Nenhuma tarefa cadastrada.");
                 }
                 setTasks(mytasks.data);
-                setMaxPage(Math.ceil(mytasks.totalCount / pageSize) - 1 );
+                setMaxPage(Math.ceil(mytasks.totalCount / pageSize) - 1);
                 console.log(maxPage, "aaaaaaaaaaaaaaaaaaaaaaaa", Math.ceil(mytasks.totalCount / pageSize));
             } catch (error) {
                 setError("Erro ao buscar tarefas.");
@@ -38,7 +52,7 @@ const Index = () => {
         };
 
         fetchData();
-    }, [user, page, pageSize]);
+    }, [user, page, pageSize, maxPage, flush]);
 
     // Função para atualizar o tamanho da página
     const handlePageSizeChange = (e) => {
@@ -46,6 +60,38 @@ const Index = () => {
         setPage(0)
         setPageSize(parseInt(e.target.value)); // Parse para garantir que é um número inteiro
     }
+
+    const openModal = () => {
+        console.log("open modal");
+        setFormData({
+            id: null,
+            title: "",
+            description: "",
+            executionTime: "",
+            durationMin: "",
+            user: {
+                id: user.id,
+            }
+        });
+        setIsCadOpem(true);
+    };
+
+    const closeModal = () => {
+        setIsCadOpem(false);
+    };
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log("submit", formData);
+        const response = await createTask(formData, user.token);
+        closeModal();
+        setFlush(flush + 1);
+    }
+
 
     return (
         <Style.Container>
@@ -59,15 +105,41 @@ const Index = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            Allan Fernando software engineer
+                            Allan Fernando engenheiro de software
                         </a>
                     </Style.Strong>
                 </Style.LabelMinor>
             </Style.Header>
             <Style.Body>
+
                 <Style.BodyHeader>
-                    <Style.Label>Tarefas Cadastradas</Style.Label>&nbsp;<Style.ButtonNewTask>Cadastrar nova tarefa</Style.ButtonNewTask>
+                    <Style.Label>Tarefas Cadastradas</Style.Label>&nbsp;<Style.ButtonNewTask onClick={openModal}>Cadastrar nova tarefa</Style.ButtonNewTask>
                 </Style.BodyHeader>
+
+
+                {isCadOpem && (
+                    <Style.Content>
+                        <Style.Form onSubmit={handleSubmit}>
+                            <Style.FormGroup>
+                                <label htmlFor="title">Título:</label>
+                                <input type="text" id="title" name="title" value={formData.title} onChange={handleChange} />
+                            </Style.FormGroup>
+                            <Style.FormGroup>
+                                <label htmlFor="description">Descrição:</label>
+                                <textarea id="description" name="description" value={formData.description} onChange={handleChange} />
+                            </Style.FormGroup>
+                            <Style.FormGroup>
+                                <label htmlFor="executionTime">Data/Hora:</label>
+                                <input type="datetime-local" id="executionTime" name="executionTime" value={formData.executionTime} onChange={handleChange} />
+                            </Style.FormGroup>
+                            <Style.FormGroup>
+                                <label htmlFor="durationMin">Duração (em minutos):</label>
+                                <input type="number" id="durationMin" name="durationMin" value={formData.durationMin} onChange={handleChange} />
+                            </Style.FormGroup>
+                            <Style.SubmitButton type="submit">Salvar</Style.SubmitButton>
+                        </Style.Form>
+                    </Style.Content>
+                )}
                 <Style.Content>
                     {loading ? (
                         <Style.Label>Loading...</Style.Label>
@@ -94,7 +166,7 @@ const Index = () => {
                                             {task.description}
                                         </Style.TableCell>
                                         <Style.TableCell>
-                                            {format(new Date(task.executionTime), "dd/MM/yyyy HH:mm:ss")}
+                                            {format(new Date(task.executionTime), "dd/MM/yyyy HH:mm")}
                                         </Style.TableCell>
                                         <Style.TableCell>
                                             {task.durationMin} Min
@@ -106,7 +178,7 @@ const Index = () => {
                                     </Style.TableRow>
                                 ))}
                                 <div>
-                                <Style.Button disabled={page <= 0 ? true : false} onClick={() => { setPage(page - 1) }}>Página anterior</Style.Button>&nbsp;{page}&nbsp;<Style.Button disabled={page < maxPage ? false : true} onClick={() => { setPage(page + 1) }}>Próxima página</Style.Button>
+                                    <Style.Button disabled={page <= 0 ? true : false} onClick={() => { setPage(page - 1) }}>Página anterior</Style.Button>&nbsp;{page}&nbsp;<Style.Button disabled={page < maxPage ? false : true} onClick={() => { setPage(page + 1) }}>Próxima página</Style.Button>
                                     <span> Página: </span>
                                     <select value={pageSize} onChange={handlePageSizeChange}>
                                         <option value="5">5</option>
