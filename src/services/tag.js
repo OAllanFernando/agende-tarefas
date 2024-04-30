@@ -28,6 +28,34 @@ const findAllTag = async (user_id, token, page, pageSize) => {
     }
 }
 
+const findAllTagWithoutPages = async (user_id, token) => {
+    try {
+        const response = await ApiManager(`/tags/user-tags/${user_id}`, {
+            method: "GET",
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (!response) {
+            return [];
+        }
+        if (response.data.length === 0) {
+            return [];
+        }
+
+        const totalCount = response.headers['x-total-count']; // Quantidade total de itens
+
+        console.log(response);
+        return {
+            data: response.data,
+            totalCount: totalCount,
+        };
+    } catch (error) {
+        return false;
+    }
+}
+
 const deleteTag = async (tag_id, token) => {
     try {
         const response = await ApiManager(`/tags/${tag_id}`, {
@@ -87,5 +115,5 @@ const updateTag = async (tag, token) => {
 }
 
 export {
-    findAllTag, deleteTag, createTag, updateTag
+    findAllTag, deleteTag, createTag, updateTag, findAllTagWithoutPages
 }

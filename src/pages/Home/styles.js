@@ -43,6 +43,13 @@ export const BodyHeaderTag = styled.div`
     width: 100%;
 `;
 
+export const TagsSpace = styled.div`
+    display: flex;
+    justify-content: left;
+    width: 100%;
+    margin-bottom: 10px;
+`;
+
 export const Footer = styled.div`
     padding: 20px;
     background-color: #f0f0f0;

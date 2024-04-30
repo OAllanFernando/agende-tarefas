@@ -4,13 +4,14 @@ import { createTask, deleteTask, findAllTask, getTaskByDay, getTaskByMonth, getT
 import useAuth from "../../hooks/useAuth";
 import { format } from 'date-fns';
 import Input from "../../components/Inputs";
-import { createTag, deleteTag, findAllTag, updateTag } from "../../services/tag";
+import { createTag, deleteTag, findAllTag, findAllTagWithoutPages, updateTag } from "../../services/tag";
 
 const Index = () => {
     const { user } = useAuth();
 
     const [tasks, setTasks] = React.useState([]);
     const [tags, setTags] = React.useState([]);
+    const [allTags, setAllTags] = React.useState([]);
 
     const [loading, setLoading] = React.useState(true);
 
@@ -38,7 +39,8 @@ const Index = () => {
         durationMin: "",
         user: {
             id: user.id,
-        }
+        },
+        tags: [],
     });
 
     const [formDataTag, setFormDataTag] = React.useState({
@@ -63,9 +65,14 @@ const Index = () => {
         const fetchDataTag = async () => {
             try {
                 const myTags = await findAllTag(user.id, user.token, pageTag, pageSizeTag);
+                const allMyTags = await findAllTagWithoutPages(user.id, user.token);
                 if (myTags.length === 0 || myTags.data.length === 0) {
                     setErrorTag("Nenhuma tag cadastrada.");
                 }
+                if (allMyTags.length === 0 || allMyTags.data.length === 0) {
+                    setErrorCadTag("Nenhuma tag cadastrada.");
+                }
+                setAllTags(allMyTags.data);
                 setTags(myTags.data);
                 setMaxPageTag(Math.ceil(myTags.totalCount / pageSizeTag) - 1);
 
@@ -148,7 +155,8 @@ const Index = () => {
             durationMin: "",
             user: {
                 id: user.id,
-            }
+            },
+            tags: [],
         });
         setIsCadOpem(true);
     };
@@ -238,7 +246,8 @@ const Index = () => {
             durationMin: task.durationMin,
             user: {
                 id: user.id,
-            }
+            },
+            tags: task.tags,
         }
         setFormData(taskEdit);
         setIsCadOpem(true);
@@ -295,6 +304,27 @@ const Index = () => {
 
     }
 
+    const removeTag = (indexToRemove) => {
+        const updatedTags = formData.tags.filter((tag, index) => index !== indexToRemove);
+        setFormData(prevState => ({
+            ...prevState,
+            tags: updatedTags
+        }));
+    };
+
+    // Função para lidar com a alteração da tag selecionada
+    const handleTagChange = (e) => {
+        const selectedTagId = e.target.value;
+        const isTagAlreadySelected = formData.tags.some(tag => tag.id === selectedTagId);
+        if (selectedTagId && !isTagAlreadySelected) {
+            const selectedTagName = e.target.options[e.target.selectedIndex].text;
+            setFormData(prevState => ({
+                ...prevState,
+                selectedTagId: selectedTagId,
+                tags: [...prevState.tags, { id: selectedTagId, name: selectedTagName }]
+            }));
+        }
+    };
 
     return (
         <Style.Container>
@@ -409,6 +439,29 @@ const Index = () => {
                                 <label htmlFor="durationMin">Duração (em minutos):</label>
                                 <input type="number" id="durationMin" name="durationMin" value={formData.durationMin} onChange={handleChange} />
                             </Style.FormGroup>
+
+                            <Style.FormGroup >
+                                <label htmlFor="tags">Tags:</label>
+                                <select value={formData.tags} onChange={handleTagChange}>
+                                    <option value="">Selecione uma tag</option>
+                                    {allTags && allTags.map((tag, index) => (
+                                        <option value={tag.id}>{tag.name}</option>
+                                    ))}
+                                </select>
+                            </Style.FormGroup>
+                            {
+                                <Style.TagsSpace>
+                                    {
+                                        formData.tags && formData.tags.map((tag, index) => (
+                                            <Style.ButtonNewTags key={index} onClick={() => removeTag(index)} type="button">
+                                            {tag.name}
+                                        </Style.ButtonNewTags>
+                                        ))
+                                    }
+                                </Style.TagsSpace>
+                            }
+
+                            <Style.BodyHeader> </Style.BodyHeader>
                             <Style.SubmitButton type="submit">Salvar</Style.SubmitButton>
                         </Style.Form>
                     </Style.Content>

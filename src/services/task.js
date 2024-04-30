@@ -72,9 +72,23 @@ const updateTask = async (task, token) => {
         });
 
         // Verificar se a resposta foi bem-sucedida (código de status 200)
-        if (response.status === 200) {
+        if (response.status != 200) {
+            return false;
+        }
+
+        const responseTag = await ApiManager(`/tasks/${task.id}/update-tags`, {
+            method: "POST",
+            headers: {
+                'content-type': 'application/json',
+                "Authorization": `Bearer ${token}`
+            },
+            data: task.tags
+        });
+
+        if (responseTag.status === 200) {
             return response.status;
         }
+
         return false;
     } catch (error) {
         console.error("Error updating task:", error);
