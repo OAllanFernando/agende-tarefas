@@ -4,14 +4,25 @@ import { createTask, deleteTask, findAllTask, getTaskByDay, getTaskByMonth, getT
 import useAuth from "../../hooks/useAuth";
 import { format } from 'date-fns';
 import Input from "../../components/Inputs";
+import { deleteTag, findAllTag } from "../../services/tag";
 
 const Index = () => {
     const { user } = useAuth();
+
     const [tasks, setTasks] = React.useState([]);
+    const [tags, setTags] = React.useState([]);
+
     const [loading, setLoading] = React.useState(true);
+
     const [error, setError] = React.useState("");
+    const [errorTag, setErrorTag] = React.useState("");
+    const [errorCadTag, setErrorCadTag] = React.useState("");
     const [errorEdit, setErrorEdit] = React.useState("");
+
     const [isCadOpem, setIsCadOpem] = React.useState(false);
+    const [isTagOpem, setIsTagOpem] = React.useState(false);
+    const [isTagCadOpem, setIsTagCadOpem] = React.useState(false);
+
     const [flush, setFlush] = React.useState(0);
     const [search, setSearch] = React.useState("");
     const [exibition, setExibition] = React.useState(0);
@@ -34,11 +45,33 @@ const Index = () => {
     const [page, setPage] = React.useState(0);
     const [pageSize, setPageSize] = React.useState(5);
 
+    const [pageTag, setPageTag] = React.useState(0);
+    const [pageSizeTag, setPageSizeTag] = React.useState(5);
+
     const [maxPage, setMaxPage] = React.useState(0);
+    const [maxPageTag, setMaxPageTag] = React.useState(0);
+
+    React.useEffect(() => {
+        const fetchDataTag = async () => {
+            try {
+                const myTags = await findAllTag(user.id, user.token, pageTag, pageSizeTag);
+                if (myTags.length === 0 || myTags.data.length === 0) {
+                    setErrorTag("Nenhuma tag cadastrada.");
+                }
+                setTags(myTags.data);
+                setMaxPageTag(Math.ceil(myTags.totalCount / pageSizeTag) - 1);
+
+            } catch (error) {
+
+            }
+        };
+        fetchDataTag();
+    }, [pageTag, pageSizeTag, maxPageTag, flush]);
 
     React.useEffect(() => {
         const fetchData = async () => {
             try {
+                console.log("fetch data", dateToFind);
                 setLoading(true);
                 setError("");
                 let mytasks;
@@ -78,11 +111,17 @@ const Index = () => {
         setPageSize(parseInt(e.target.value)); // Parse para garantir que é um número inteiro
     }
 
+    const handlePageSizeTagChange = (e) => {
+        console.log(e.target.value);
+        setPageTag(0)
+        setPageSizeTag(parseInt(e.target.value));
+    }
+
     const handleExibitionChange = (e) => {
         console.log(e.target.value);
         setDateToFind(null)
         setExibition(parseInt(e.target.value))
-        if(parseInt(e.target.value) === 0){
+        if (parseInt(e.target.value) === 0) {
             setFlush(flush + 1);
         }
     }
@@ -105,6 +144,16 @@ const Index = () => {
 
     const closeModal = () => {
         setIsCadOpem(false);
+    };
+
+    const openModalTag = () => {
+        console.log("open modal");
+        setIsTagOpem(true);
+    };
+
+    const openModalTagCad = () => {
+        console.log("open modal");
+        setIsTagCadOpem(true);
     };
 
     const handleChange = (e) => {
@@ -175,12 +224,33 @@ const Index = () => {
 
     }
 
+    const editTag = () => {
+        setIsTagOpem(true);
+
+    }
+
+    const deleteTagAsk = async (tag) => {
+        console.log("delete", tag);
+        const ask = window.confirm("Deseja realmente excluir a tarefa?");
+
+        console.log(ask);
+        if (ask) {
+            const response = await deleteTag(tag.id, user.token);
+            if (response !== 204) {
+                setErrorTag("Erro ao excluir Tag.");
+                return;
+            }
+            setFlush(flush + 1);
+        }
+
+    }
+
     const handleSearch = async (e) => {
         e.preventDefault();
         setExibition(0);
         setDateToFind(null);
         setSearch(e.target.value)
-        
+
     }
 
 
@@ -203,14 +273,80 @@ const Index = () => {
             </Style.Header>
             <Style.Body>
 
-                <Style.BodyHeader>
-                    <Style.Label>Tarefas Cadastradas</Style.Label>&nbsp;<Style.ButtonNewTask onClick={openModal}>Cadastrar nova tarefa</Style.ButtonNewTask>
-                </Style.BodyHeader>
+                <Style.BodyHeaderTag>
+                    <Style.ButtonNewTags onClick={openModalTag}>Minhas Tags</Style.ButtonNewTags><Style.ButtonNewTags onClick={openModalTag}>Gráficos</Style.ButtonNewTags>
+                </Style.BodyHeaderTag>
+                {isTagOpem && (
+                    <>
+                        {isTagCadOpem && (
+                            <Style.Content>
+                                <Style.BodyHeaderLeft>
+                                    <Style.Label>Cadastrar Tag</Style.Label>
+                                </Style.BodyHeaderLeft>
+                                <Style.LabelError>{errorCadTag}</Style.LabelError>
+                                <Style.Form onSubmit={handleSubmit}>
+                                    <Style.FormGroup>
+                                        <label htmlFor="title">Título:</label>
+                                        <input type="text" id="title" name="title" value={formData.title} onChange={handleChange} />
+                                    </Style.FormGroup>
 
+                                    <Style.SubmitButton type="submit">Salvar</Style.SubmitButton>
+                                </Style.Form>
+                            </Style.Content>
+                        )}
+                        <Style.Content>
+                            <Style.BodyHeader>
+                                <Style.Label>Tags Cadastradas</Style.Label>&nbsp;<Style.ButtonNewTask onClick={openModalTagCad}>Cadastrar nova Tag</Style.ButtonNewTask>
+                            </Style.BodyHeader>
+
+                            {loading ? (
+                                <Style.Label>Loading...</Style.Label>
+                            ) : errorTag ? (
+                                <Style.LabelError>{errorTag}</Style.LabelError>
+                            ) : (
+
+                                <Style.Table>
+                                    <thead>
+                                        <tr>
+                                            <th>Título</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {tags.map((task, index) => (
+                                            <Style.TableRow key={index}>
+                                                <Style.TableCell>
+                                                    {task.name}
+                                                </Style.TableCell>
+                                                <Style.TableButtonCell>
+                                                    <Style.EditButton onClick={() => { editTag(task); }}>Editar</Style.EditButton>
+                                                    <Style.DeleteButton onClick={() => { deleteTagAsk(task); }}>Excluir</Style.DeleteButton>
+                                                </Style.TableButtonCell>
+
+                                            </Style.TableRow>
+                                        ))}
+                                        <div>
+                                            <Style.Button disabled={pageTag <= 0 ? true : false} onClick={() => { setPageTag(pageTag - 1); }}>Página anterior</Style.Button>&nbsp;{pageTag}&nbsp;<Style.Button disabled={pageTag < maxPageTag ? false : true} onClick={() => { setPageTag(pageTag + 1); }}>Próxima página</Style.Button>
+                                            <span> Página: </span>
+                                            <select value={pageSizeTag} onChange={handlePageSizeTagChange}>
+                                                <option value="5">5</option>
+                                                <option value="10">10</option>
+                                                <option value="15">15</option>
+                                            </select>
+
+                                        </div>
+                                    </tbody>
+                                </Style.Table>
+                            )}
+                        </Style.Content></>
+                )}
 
                 {isCadOpem && (
                     <Style.Content>
                         <Style.LabelError>{errorEdit}</Style.LabelError>
+                        <Style.BodyHeaderLeft>
+                            <Style.Label>Cadastrar Tarefa</Style.Label>
+                        </Style.BodyHeaderLeft>
                         <Style.Form onSubmit={handleSubmit}>
                             <Style.FormGroup>
                                 <label htmlFor="title">Título:</label>
@@ -233,6 +369,10 @@ const Index = () => {
                     </Style.Content>
                 )}
                 <Style.Content>
+
+                    <Style.BodyHeader>
+                        <Style.Label>Tarefas Cadastradas</Style.Label>&nbsp;<Style.ButtonNewTask onClick={openModal}>Cadastrar nova tarefa</Style.ButtonNewTask>
+                    </Style.BodyHeader>
                     <Style.BodyHeader>
                         <Input
                             type="text"
@@ -289,6 +429,7 @@ const Index = () => {
                                             <Style.EditButton onClick={() => { editTask(task) }}>Editar</Style.EditButton>
                                             <Style.DeleteButton onClick={() => { deleteTaskAsk(task) }}>Excluir</Style.DeleteButton>
                                         </Style.TableButtonCell>
+
                                     </Style.TableRow>
                                 ))}
                                 <div>

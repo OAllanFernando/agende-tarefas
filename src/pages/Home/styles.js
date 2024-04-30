@@ -30,6 +30,21 @@ export const BodyHeader = styled.div`
     width: 100%;
 `;
 
+export const BodyHeaderLeft = styled.div`
+   
+    display: flex;
+    justify-content: left;
+    width: 100%;
+`;
+
+
+export const BodyHeaderTag = styled.div`
+   
+    display: flex;
+    justify-content: right;
+    width: 100%;
+`;
+
 export const Footer = styled.div`
     padding: 20px;
     background-color: #f0f0f0;
@@ -46,6 +61,7 @@ export const Content = styled.div`
     align-items: center;
     flex-direction: column;
     gap: 10px;
+    margin-top: 10px;
 `;
 
 export const Label = styled.label`
@@ -133,6 +149,18 @@ export const ButtonNewTask = styled.button`
         background-color: #0056b3;
     }
 `
+export const ButtonNewTags= styled.button`
+    padding: 9px 10px;
+    border: none;
+    background-color: #006e30;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover {
+        background-color: #0056b3;
+    }
+    margin-left: 10px;
+`
 export const gridCad = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -201,6 +229,20 @@ export const DeleteButton = styled.button`
     padding: 10px 20px;
     border: none;
     background-color: #ff0000;
+    color: #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+`;
+
+export const TagsButton = styled.button`
+    padding: 10px 20px;
+    border: none;
+    background-color: #5d38c9;
     color: #000000;
     border-radius: 4px;
     cursor: pointer;
