@@ -24,7 +24,6 @@ export const Body = styled.div`
 `;
 
 export const BodyHeader = styled.div`
-   
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -39,7 +38,6 @@ export const BodyHeaderLeft = styled.div`
 
 
 export const BodyHeaderTag = styled.div`
-   
     display: flex;
     justify-content: right;
     width: 100%;
@@ -212,7 +210,7 @@ export const SubmitButton = styled.button`
 
 
 export const EditButton = styled.button`
-    padding: 10px 20px;
+    padding: 8px 20px;
     border: none;
     background-color: #ffe600;
     color: #000000;
@@ -226,14 +224,14 @@ export const EditButton = styled.button`
 `;
 
 export const DeleteButton = styled.button`
-    padding: 10px 20px;
+    padding: 8px 20px;
     border: none;
     background-color: #ff0000;
-    color: #000000;
+    color: #ffffff;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-
+    margin-left: 10px;
     &:hover {
         background-color: #0056b3;
     }

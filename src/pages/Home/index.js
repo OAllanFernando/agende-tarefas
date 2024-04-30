@@ -4,7 +4,7 @@ import { createTask, deleteTask, findAllTask, getTaskByDay, getTaskByMonth, getT
 import useAuth from "../../hooks/useAuth";
 import { format } from 'date-fns';
 import Input from "../../components/Inputs";
-import { deleteTag, findAllTag } from "../../services/tag";
+import { createTag, deleteTag, findAllTag, updateTag } from "../../services/tag";
 
 const Index = () => {
     const { user } = useAuth();
@@ -36,6 +36,14 @@ const Index = () => {
         description: "",
         executionTime: "",
         durationMin: "",
+        user: {
+            id: user.id,
+        }
+    });
+
+    const [formDataTag, setFormDataTag] = React.useState({
+        id: null,
+        name: "",
         user: {
             id: user.id,
         }
@@ -76,16 +84,21 @@ const Index = () => {
                 setError("");
                 let mytasks;
                 if (search !== "") {
+                    // busca tarefas por nome
                     mytasks = await getTaskByTitle(user.id, search, user.token, page, pageSize);
                 } else if (exibition === 0) {
+                    // busca todas tarefa 
                     mytasks = await findAllTask(user.id, user.token, page, pageSize);
                 } else if (exibition === 1) {
+                    // busca por dia 
                     mytasks = await getTaskByDay(user.id, dateToFind, user.token, page, pageSize);
                 }
                 else if (exibition === 2) {
+                    // busca por semana
                     mytasks = await getTaskByWeek(user.id, dateToFind, user.token, page, pageSize);
                 }
                 else if (exibition === 3) {
+                    // busca por mês
                     mytasks = await getTaskByMonth(user.id, dateToFind, user.token, page, pageSize);
                 }
                 if (mytasks.length === 0 || mytasks.data.length === 0) {
@@ -126,9 +139,7 @@ const Index = () => {
         }
     }
 
-
     const openModal = () => {
-        console.log("open modal");
         setFormData({
             id: null,
             title: "",
@@ -152,7 +163,13 @@ const Index = () => {
     };
 
     const openModalTagCad = () => {
-        console.log("open modal");
+        setFormDataTag({
+            id: null,
+            name: "",
+            user: {
+                id: user.id,
+            }
+        });
         setIsTagCadOpem(true);
     };
 
@@ -161,10 +178,16 @@ const Index = () => {
         setErrorEdit("");
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
+
+    const handleChangeTag = (e) => {
+        console.log("change", e.target.name, e.target.value);
+        setErrorEdit("");
+        setFormDataTag({ ...formDataTag, [e.target.name]: e.target.value });
+    }
+
     const handleChangeDateToFind = (e) => {
         setDateToFind(e.target.value);
     }
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -185,13 +208,26 @@ const Index = () => {
         setFlush(flush + 1);
     }
 
-    const editTask = (task) => {
-        console.log("edit", task);
+    const handleSubmitTag = async (e) => {
+        e.preventDefault();
+        console.log("submit", formData);
+        let response;
+        if (formDataTag.id) {
+            response = await updateTag(formDataTag, user.token);
+        } else {
+            response = await createTag(formDataTag, user.token);
+        }
+        if (response !== 201 && response !== 200) {
+            setErrorEdit("Erro ao salvar tarefa.");
+            return;
+        }
+        setIsTagCadOpem(false);
+        setFlush(flush + 1);
+    }
 
+    const editTask = (task) => {
         const originalDateTime = new Date(task.executionTime);
         originalDateTime.setHours(originalDateTime.getHours() - 3);
-
-
         const formattedDateTime = originalDateTime.toISOString().slice(0, 16);
 
         const taskEdit = {
@@ -211,8 +247,7 @@ const Index = () => {
     const deleteTaskAsk = async (task) => {
         console.log("delete", task);
         const ask = window.confirm("Deseja realmente excluir a tarefa?");
-
-        console.log(ask);
+        //        console.log(ask);
         if (ask) {
             const response = await deleteTask(task.id, user.token);
             if (response !== 204) {
@@ -224,16 +259,23 @@ const Index = () => {
 
     }
 
-    const editTag = () => {
-        setIsTagOpem(true);
+    const editTag = (tag) => {
+        //console.log("edit", tag);
+        const tagEdit = {
+            id: tag.id,
+            name: tag.name,
+            user: {
+                id: user.id,
+            }
+        }
+        setFormDataTag(tagEdit);
+        setIsTagCadOpem(true);
 
     }
 
     const deleteTagAsk = async (tag) => {
-        console.log("delete", tag);
+        //console.log("delete", tag);
         const ask = window.confirm("Deseja realmente excluir a tarefa?");
-
-        console.log(ask);
         if (ask) {
             const response = await deleteTag(tag.id, user.token);
             if (response !== 204) {
@@ -284,10 +326,10 @@ const Index = () => {
                                     <Style.Label>Cadastrar Tag</Style.Label>
                                 </Style.BodyHeaderLeft>
                                 <Style.LabelError>{errorCadTag}</Style.LabelError>
-                                <Style.Form onSubmit={handleSubmit}>
+                                <Style.Form onSubmit={handleSubmitTag}>
                                     <Style.FormGroup>
-                                        <label htmlFor="title">Título:</label>
-                                        <input type="text" id="title" name="title" value={formData.title} onChange={handleChange} />
+                                        <label htmlFor="name">name:</label>
+                                        <input type="text" id="name" name="name" value={formDataTag.name} onChange={handleChangeTag} />
                                     </Style.FormGroup>
 
                                     <Style.SubmitButton type="submit">Salvar</Style.SubmitButton>
@@ -296,8 +338,11 @@ const Index = () => {
                         )}
                         <Style.Content>
                             <Style.BodyHeader>
-                                <Style.Label>Tags Cadastradas</Style.Label>&nbsp;<Style.ButtonNewTask onClick={openModalTagCad}>Cadastrar nova Tag</Style.ButtonNewTask>
+                                <Style.Label>Tags Cadastradas</Style.Label>&nbsp;<Style.BodyHeaderTag>
+                                    <Style.ButtonNewTask onClick={openModalTagCad}>Cadastrar nova Tag</Style.ButtonNewTask><Style.DeleteButton onClick={() => { setIsTagOpem(false) }}>Fechar Tags</Style.DeleteButton>
+                                </Style.BodyHeaderTag>
                             </Style.BodyHeader>
+
 
                             {loading ? (
                                 <Style.Label>Loading...</Style.Label>
@@ -344,9 +389,9 @@ const Index = () => {
                 {isCadOpem && (
                     <Style.Content>
                         <Style.LabelError>{errorEdit}</Style.LabelError>
-                        <Style.BodyHeaderLeft>
-                            <Style.Label>Cadastrar Tarefa</Style.Label>
-                        </Style.BodyHeaderLeft>
+                        <Style.BodyHeader>
+                            <Style.Label>Cadastrar Tarefa</Style.Label><Style.DeleteButton onClick={() => { setIsCadOpem(false) }}>Fechar Cadastro</Style.DeleteButton>
+                        </Style.BodyHeader>
                         <Style.Form onSubmit={handleSubmit}>
                             <Style.FormGroup>
                                 <label htmlFor="title">Título:</label>

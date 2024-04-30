@@ -46,8 +46,46 @@ const deleteTag = async (tag_id, token) => {
     }
 }
 
+const createTag = async (tag, token) => {
+    try {
+        const response = await ApiManager(`/tags`, {
+            method: "POST",
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            data: tag
+        });
+        if (response.status === 201) {
+            return response.status;
+        }
+    }
+    catch (error) {
+        console.error("Error creating task:", error);
+        return false;
+    }
+}
 
+const updateTag = async (tag, token) => {
+    try {
+        const response = await ApiManager(`/tags/${tag.id}`, {
+            method: "PATCH",
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            data: tag
+        });
+        if (response.status === 200) {
+            return response.status;
+        }
+    }
+    catch (error) {
+        console.error("Error creating task:", error);
+        return false;
+    }
+}
 
 export {
-    findAllTag, deleteTag
+    findAllTag, deleteTag, createTag, updateTag
 }
