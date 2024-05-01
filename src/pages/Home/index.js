@@ -1,13 +1,13 @@
-import React, { PureComponent } from "react";
+import React from "react";
 import * as Style from "./styles";
 import { createTask, deleteTask, findAllTask, getTaskByDay, getTaskByMonth, getTaskByTitle, getTaskByWeek, updateTask } from "../../services/task";
 import useAuth from "../../hooks/useAuth";
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import Input from "../../components/Inputs";
 import { createTag, deleteTag, findAllTag, findAllTagWithoutPages, updateTag } from "../../services/tag";
 import getHolidays from "../../services/holidays";
 
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { getTagGraphic, getGraphic } from "../../services/graphic";
 
 
@@ -435,7 +435,7 @@ const Index = () => {
                             </Style.BodyHeader>
                             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
                                 <Style.ChartContainer>
-                                    {dataGraphicTasks && dataGraphicTasks.length == 0 ? <Style.Label>Sem Dados</Style.Label> : null}
+                                    {dataGraphicTasks && dataGraphicTasks.length === 0 ? <Style.Label>Sem Dados</Style.Label> : null}
 
                                     <BarChart width={250} height={200} data={dataGraphicTasks}>
                                         <Bar dataKey="uv" fill="#8884d8" />
@@ -446,7 +446,7 @@ const Index = () => {
                                     <Style.Label>Resolução de Tarefas</Style.Label>
                                 </Style.ChartContainer>
                                 <Style.ChartContainer>
-                                    {dataGraphicTags && dataGraphicTags.length == 0 ? <Style.Label>Sem Dados</Style.Label> : null}
+                                    {dataGraphicTags && dataGraphicTags.length === 0 ? <Style.Label>Sem Dados</Style.Label> : null}
                                     <BarChart width={800} height={200} data={dataGraphicTags}>
                                         <Bar dataKey="uv" fill="#8884d8" />
                                         <XAxis dataKey="name" />

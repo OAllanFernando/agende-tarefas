@@ -2,36 +2,6 @@ Modelo implementado demonstrado por
 https://www.youtube.com/watch?v=LjJFu6Y6MrU
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ABAIXO README PADRÂO DA CRIAÇÂO DO PROJETO
-
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

@@ -67,7 +67,7 @@ const updateTask = async (task, token) => {
         });
 
         // Verificar se a resposta foi bem-sucedida (código de status 200)
-        if (response.status != 200) {
+        if (response.status !== 200) {
             return false;
         }
 
