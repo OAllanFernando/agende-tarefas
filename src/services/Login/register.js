@@ -3,8 +3,6 @@ import ApiManager from "../ApiManager";
 const Register = async (firstName, lastName, login, password, email) => {
 
     try {
-        console.log(firstName, lastName, login, password, email);
-
         const user = {
             "password": password,
             "email": email,
@@ -27,7 +25,6 @@ const Register = async (firstName, lastName, login, password, email) => {
             return false;
         }
     } catch (error) {
-        console.log('Error:', error.response.data.message);
         if (error.response.data.message === "error.userexists") {
             // console.log('Login já em uso, tente um diferente');
             return 1;

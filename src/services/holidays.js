@@ -10,7 +10,6 @@ const ApiHolidays = axios.create({
 const getHolidays = async (country, year) => {
     try {
         const response = await ApiHolidays.get(`/${year}/${country}`);
-        console.log(response, "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
         if (response.status === 200) {
             return response.data;
         }

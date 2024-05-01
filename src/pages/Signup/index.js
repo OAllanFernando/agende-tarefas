@@ -96,7 +96,6 @@ const Signup = () => {
                         } else if (password !== confirmPassword) {
                             setError("As senhas não coincidem");
                         } else {
-                            console.log(name, lastName, email, login, password);
                             handlRegister();
                         }
                     }}

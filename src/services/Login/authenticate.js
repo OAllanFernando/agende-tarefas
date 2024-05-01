@@ -11,15 +11,12 @@ const Authenticate = async (username, password, rememberMe) => {
             data: JSON.stringify({ username, password, rememberMe }),
             timeout: 10000,
         });
-
-        console.log(response);
         if (response.status === 200) {
             return response.data;
         } else {
             return false;
         }
     } catch (error) {
-        console.error('Error:', error);
         return false;
     }
 };

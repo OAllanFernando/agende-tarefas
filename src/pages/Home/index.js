@@ -21,9 +21,10 @@ const Index = () => {
     const [loading, setLoading] = React.useState(true);
 
     const [error, setError] = React.useState("");
+    const [errorEdit, setErrorEdit] = React.useState("");
+
     const [errorTag, setErrorTag] = React.useState("");
     const [errorCadTag, setErrorCadTag] = React.useState("");
-    const [errorEdit, setErrorEdit] = React.useState("");
 
     const [isCadOpem, setIsCadOpem] = React.useState(false);
     const [isTagOpem, setIsTagOpem] = React.useState(false);
@@ -92,18 +93,18 @@ const Index = () => {
                 const myTags = await findAllTag(user.id, user.token, pageTag, pageSizeTag);
                 const allMyTags = await findAllTagWithoutPages(user.id, user.token);
 
+                setErrorTag("");
                 if (myTags.length === 0 || myTags.data.length === 0) {
                     setErrorTag("Nenhuma tag cadastrada.");
                 }
                 if (allMyTags.length === 0 || allMyTags.data.length === 0) {
-                    setErrorCadTag("Nenhuma tag cadastrada.");
+                    setErrorTag("Nenhuma tag cadastrada.");
                 }
                 setAllTags(allMyTags.data);
                 setTags(myTags.data);
                 setMaxPageTag(Math.ceil(myTags.totalCount / pageSizeTag) - 1);
-
             } catch (error) {
-
+                setErrorTag("Erro ao buscar tags.");
             }
         };
         fetchDataTag();
@@ -112,7 +113,7 @@ const Index = () => {
     React.useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log("fetch data", dateToFind);
+                //console.log("fetch data", dateToFind);
                 setLoading(true);
                 setError("");
                 const dataGraphic = await getGraphic(user.id, user.token);
@@ -140,8 +141,6 @@ const Index = () => {
                     mytasks = await getTaskByMonth(user.id, dateToFind, user.token, page, pageSize);
                 }
 
-                // Check if execution date is a holiday and mark tasks accordingly
-
                 if (mytasks.length === 0 || mytasks.data.length === 0) {
                     setError("Nenhuma tarefa cadastrada.");
                 } else {
@@ -160,7 +159,6 @@ const Index = () => {
 
 
             } catch (error) {
-                console.log(error);
                 setError("Erro ao buscar tarefas.");
             } finally {
                 setLoading(false);
@@ -173,19 +171,16 @@ const Index = () => {
 
 
     const handlePageSizeChange = (e) => {
-        console.log(e.target.value);
         setPage(0)
         setPageSize(parseInt(e.target.value)); // Parse para garantir que é um número inteiro
     }
 
     const handlePageSizeTagChange = (e) => {
-        console.log(e.target.value);
         setPageTag(0)
         setPageSizeTag(parseInt(e.target.value));
     }
 
     const handleExibitionChange = (e) => {
-        console.log(e.target.value);
         setDateToFind(null)
         setExibition(parseInt(e.target.value))
         if (parseInt(e.target.value) === 0) {
@@ -214,7 +209,6 @@ const Index = () => {
     };
 
     const openModalTag = () => {
-        console.log("open modal");
         setIsTagOpem(true);
     };
 
@@ -276,7 +270,6 @@ const Index = () => {
     }
 
     const handleChangeTag = (e) => {
-        console.log("change", e.target.name, e.target.value);
         setErrorEdit("");
         setFormDataTag({ ...formDataTag, [e.target.name]: e.target.value });
     }
@@ -287,7 +280,6 @@ const Index = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("submit", formData);
         let response;
         if (formData.id) {
             response = await updateTask(formData, user.token);
@@ -306,7 +298,6 @@ const Index = () => {
 
     const handleSubmitTag = async (e) => {
         e.preventDefault();
-        console.log("submit", formData);
         let response;
         if (formDataTag.id) {
             response = await updateTag(formDataTag, user.token);
@@ -314,11 +305,13 @@ const Index = () => {
             response = await createTag(formDataTag, user.token);
         }
         if (response !== 201 && response !== 200) {
-            setErrorEdit("Erro ao salvar tarefa.");
+            setErrorCadTag("Erro ao salvar tarefa.");
             return;
         }
-        setIsTagCadOpem(false);
+
         setFlush(flush + 1);
+        setIsTagCadOpem(false);
+
     }
 
     const editTask = (task) => {
@@ -344,7 +337,6 @@ const Index = () => {
     }
 
     const deleteTaskAsk = async (task) => {
-        console.log("delete", task);
         const ask = window.confirm("Deseja realmente excluir a tarefa?");
         //        console.log(ask);
         if (ask) {
@@ -355,7 +347,6 @@ const Index = () => {
             }
             setFlush(flush + 1);
         }
-
     }
 
     const editTag = (tag) => {
@@ -421,10 +412,10 @@ const Index = () => {
     return (
         <Style.Container>
             <Style.Header>
-                <Style.Label>Sistema de Cadastro de Tarefas</Style.Label>
-                <Style.LabelMinor>
+                <Style.LabelHeader>Sistema de Cadastro de Tarefas</Style.LabelHeader>
+                <Style.LabelMinorHeader>
                     Desenvolvido por:{" "}
-                    <Style.Strong>
+                    <Style.StrongHeader>
                         <a
                             href="https://www.linkedin.com/in/allan-fernando-software-engineer/"
                             target="_blank"
@@ -432,8 +423,8 @@ const Index = () => {
                         >
                             Allan Fernando engenheiro de software
                         </a>
-                    </Style.Strong>
-                </Style.LabelMinor>
+                    </Style.StrongHeader>
+                </Style.LabelMinorHeader>
             </Style.Header>
             <Style.Body>
                 {
@@ -513,18 +504,20 @@ const Index = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {tags.map((task, index) => (
-                                            <Style.TableRow key={index}>
-                                                <Style.TableCell>
-                                                    {task.name}
-                                                </Style.TableCell>
-                                                <Style.TableButtonCell>
-                                                    <Style.EditButton onClick={() => { editTag(task); }}>Editar</Style.EditButton>
-                                                    <Style.DeleteButton onClick={() => { deleteTagAsk(task); }}>Excluir</Style.DeleteButton>
-                                                </Style.TableButtonCell>
+                                        {tags.map((task, index) => {
+                                            return (
+                                                <Style.TableRow key={index}>
+                                                    <Style.TableCell>
+                                                        {task.name}
+                                                    </Style.TableCell>
+                                                    <Style.TableButtonCell>
+                                                        <Style.EditButton onClick={() => { editTag(task); }}>Editar</Style.EditButton>
+                                                        <Style.DeleteButton onClick={() => { deleteTagAsk(task); }}>Excluir</Style.DeleteButton>
+                                                    </Style.TableButtonCell>
 
-                                            </Style.TableRow>
-                                        ))}
+                                                </Style.TableRow>
+                                            );
+                                        })}
                                         <div>
                                             <Style.Button disabled={pageTag <= 0 ? true : false} onClick={() => { setPageTag(pageTag - 1); }}>Página anterior</Style.Button>&nbsp;{pageTag}&nbsp;<Style.Button disabled={pageTag < maxPageTag ? false : true} onClick={() => { setPageTag(pageTag + 1); }}>Próxima página</Style.Button>
                                             <span> Página: </span>
@@ -677,7 +670,8 @@ const Index = () => {
 
             </Style.Body>
             <Style.Footer>
-                {/* Rodapé aqui */}
+                <Style.Label>Logado como: {user.login}</Style.Label>
+
             </Style.Footer>
         </Style.Container >
     );

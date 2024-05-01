@@ -15,10 +15,7 @@ const findAllTag = async (user_id, token, page, pageSize) => {
         if (response.data.length === 0) {
             return [];
         }
-
         const totalCount = response.headers['x-total-count']; // Quantidade total de itens
-
-        console.log(response);
         return {
             data: response.data,
             totalCount: totalCount,
@@ -43,10 +40,7 @@ const findAllTagWithoutPages = async (user_id, token) => {
         if (response.data.length === 0) {
             return [];
         }
-
         const totalCount = response.headers['x-total-count']; // Quantidade total de itens
-
-        console.log(response);
         return {
             data: response.data,
             totalCount: totalCount,

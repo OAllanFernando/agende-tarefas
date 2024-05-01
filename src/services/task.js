@@ -15,10 +15,7 @@ const findAllTask = async (user_id, token, page, pageSize) => {
         if (response.data.length === 0) {
             return [];
         }
-
         const totalCount = response.headers['x-total-count']; // Quantidade total de itens
-
-        console.log(response);
         return {
             data: response.data,
             totalCount: totalCount,
@@ -34,8 +31,6 @@ const createTask = async (task, token) => {
         if (task.executionTime) {
             task.executionTime = new Date(task.executionTime).toISOString();
         }
-
-        console.log(task, token);
         const response = await ApiManager("/tasks", {
             method: "POST",
             headers: {
@@ -131,8 +126,6 @@ const getTaskByTitle = async (userId, name, token, page, pageSize) => {
             return [];
         }
         const totalCount = response.headers['x-total-count']; // Quantidade total de itens
-
-        console.log(response);
         return {
             data: response.data,
             totalCount: totalCount,
@@ -159,8 +152,6 @@ const getTaskByDay = async (userId, date, token, page, pageSize) => {
             return [];
         }
         const totalCount = response.headers['x-total-count']; // Quantidade total de itens
-
-        console.log(response);
         return {
             data: response.data,
             totalCount: totalCount,
@@ -187,8 +178,6 @@ const getTaskByWeek = async (userId, date, token, page, pageSize) => {
             return [];
         }
         const totalCount = response.headers['x-total-count']; // Quantidade total de itens
-
-        console.log(response);
         return {
             data: response.data,
             totalCount: totalCount,
@@ -215,8 +204,6 @@ const getTaskByMonth = async (userId, date, token, page, pageSize) => {
             return [];
         }
         const totalCount = response.headers['x-total-count']; // Quantidade total de itens
-
-        console.log(response);
         return {
             data: response.data,
             totalCount: totalCount,

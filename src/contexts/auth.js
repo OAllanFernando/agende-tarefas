@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
 
     
     useEffect(() => {
-        console.log("Sempre passo aq");
+        //console.log("Sempre passo aq");
         const storagedUser = localStorage.getItem("@Auth:user");
         const storagedToken = localStorage.getItem("@Auth:token");
 
@@ -69,7 +69,6 @@ export const AuthProvider = ({ children }) => {
 
         const response = await Register(firstName, lastName, login, password, email);
 
-        console.log("aaaaaaaaaaa", response);
         if (!response) {
             return 0;
         }

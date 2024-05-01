@@ -16,7 +16,7 @@ export const ChartContainer = styled.div`
 
 export const Header = styled.div`
     padding: 20px;
-    background-color: #b0c2ff;
+    background-color: #0866FF;
     display: flex;
     justify-content: space-between;
 `;
@@ -56,7 +56,9 @@ export const TagsSpace = styled.div`
 
 export const Footer = styled.div`
     padding: 20px;
-    background-color: #f0f0f0;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
 `;
 
 export const Content = styled.div`
@@ -79,11 +81,21 @@ export const Label = styled.label`
     font-weight: 600;
     color: #00000;
 `;
+export const LabelHeader = styled.label`
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+`;
 
 export const LabelMinor = styled.label`
     font-size: 15px;
     font-weight: italic;
     color: #00000;
+`;
+export const LabelMinorHeader = styled.label`
+    font-size: 15px;
+    font-weight: italic;
+    color: #ffffff;
 `;
 
 export const LabelSingUp = styled.label`
@@ -110,6 +122,14 @@ export const Strong = styled.strong`
     a {
         text-decoration: none;
         color: #676767;
+    }
+`;
+
+export const StrongHeader = styled.strong`
+    cursor: pointer;
+    a {
+        text-decoration: none;
+        color: #ffffff;
     }
 `;
 
@@ -159,7 +179,7 @@ export const ButtonNewTask = styled.button`
         background-color: #0056b3;
     }
 `
-export const ButtonNewTags= styled.button`
+export const ButtonNewTags = styled.button`
     padding: 9px 10px;
     border: none;
     background-color: #006e30;
