@@ -5,14 +5,18 @@ import styled from "styled-components";
 export const Container = styled.div`
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh; /* Define uma altura mínima de 100vh */
+`;
+
+export const ChartContainer = styled.div`
+    width: calc(50% - 5px); 
+    margin-right: 10px; s
+    display: inline-block; 
 `;
 
 export const Header = styled.div`
     padding: 20px;
-    background-color: 
-    #b0c2ff
-    ;
+    background-color: #b0c2ff;
     display: flex;
     justify-content: space-between;
 `;
@@ -63,6 +67,7 @@ export const Content = styled.div`
     border-radius: 5px;
     display: flex;
     justify-content: center;
+    flex-direction: row;
     align-items: center;
     flex-direction: column;
     gap: 10px;

@@ -1,11 +1,15 @@
-import React from "react";
+import React, { PureComponent } from "react";
 import * as Style from "./styles";
 import { createTask, deleteTask, findAllTask, getTaskByDay, getTaskByMonth, getTaskByTitle, getTaskByWeek, updateTask } from "../../services/task";
 import useAuth from "../../hooks/useAuth";
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import Input from "../../components/Inputs";
 import { createTag, deleteTag, findAllTag, findAllTagWithoutPages, updateTag } from "../../services/tag";
 import getHolidays from "../../services/holidays";
+
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { getTagGraphic, getGraphic } from "../../services/graphic";
+
 
 const Index = () => {
     const { user } = useAuth();
@@ -35,6 +39,13 @@ const Index = () => {
     const [holidaysText, setHolidaysText] = React.useState("");
 
     const [year, setYear] = React.useState(new Date().getFullYear());
+
+    const [graphic, setGraphic] = React.useState(false);
+
+    const [dataGraphicTasks, setDataGraphicTasks] = React.useState([]);
+    const [dataGraphicTags, setDataGraphicTags] = React.useState([]);
+
+
 
 
     const [formData, setFormData] = React.useState({
@@ -70,8 +81,6 @@ const Index = () => {
     React.useEffect(() => {
         const fetchHoliday = async () => {
             const myHolidays = await getHolidays("BR", year);
-
-            console.log(myHolidays, "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
             setHolidays(myHolidays);
         };
         fetchHoliday();
@@ -82,6 +91,7 @@ const Index = () => {
             try {
                 const myTags = await findAllTag(user.id, user.token, pageTag, pageSizeTag);
                 const allMyTags = await findAllTagWithoutPages(user.id, user.token);
+
                 if (myTags.length === 0 || myTags.data.length === 0) {
                     setErrorTag("Nenhuma tag cadastrada.");
                 }
@@ -105,6 +115,11 @@ const Index = () => {
                 console.log("fetch data", dateToFind);
                 setLoading(true);
                 setError("");
+                const dataGraphic = await getGraphic(user.id, user.token);
+                const dataTag = await getTagGraphic(user.id, user.token);
+
+                setDataGraphicTags(dataTag);
+                setDataGraphicTasks(dataGraphic);
                 let mytasks;
                 if (search !== "") {
                     // busca tarefas por nome
@@ -421,9 +436,42 @@ const Index = () => {
                 </Style.LabelMinor>
             </Style.Header>
             <Style.Body>
+                {
+                    graphic ? (
+                        <Style.Content>
+                            <Style.BodyHeader>
+                                <Style.Label>Gráficos</Style.Label><Style.DeleteButton onClick={() => { setGraphic(false) }}>Fechar Gráficos</Style.DeleteButton>
+                            </Style.BodyHeader>
+                            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
+                                <Style.ChartContainer>
+                                    {dataGraphicTasks && dataGraphicTasks.length == 0 ? <Style.Label>Sem Dados</Style.Label> : null}
+
+                                    <BarChart width={250} height={200} data={dataGraphicTasks}>
+                                        <Bar dataKey="uv" fill="#8884d8" />
+                                        <XAxis dataKey="name" />
+                                        <YAxis />
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                    </BarChart>
+                                    <Style.Label>Resolução de Tarefas</Style.Label>
+                                </Style.ChartContainer>
+                                <Style.ChartContainer>
+                                    {dataGraphicTags && dataGraphicTags.length == 0 ? <Style.Label>Sem Dados</Style.Label> : null}
+                                    <BarChart width={800} height={200} data={dataGraphicTags}>
+                                        <Bar dataKey="uv" fill="#8884d8" />
+                                        <XAxis dataKey="name" />
+                                        <YAxis />
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                    </BarChart>
+                                    <Style.Label>Tags mais resolvidas</Style.Label>
+                                </Style.ChartContainer>
+                            </div>
+                        </Style.Content>
+                    ) : null
+                }
+
 
                 <Style.BodyHeaderTag>
-                    <Style.ButtonNewTags onClick={openModalTag}>Minhas Tags</Style.ButtonNewTags><Style.ButtonNewTags onClick={openModalTag}>Gráficos</Style.ButtonNewTags>
+                    <Style.ButtonNewTags onClick={openModalTag}>Minhas Tags</Style.ButtonNewTags><Style.ButtonNewTags onClick={() => { setGraphic(true) }}>Gráficos</Style.ButtonNewTags>
                 </Style.BodyHeaderTag>
                 {isTagOpem && (
                     <>
@@ -626,11 +674,12 @@ const Index = () => {
                         </Style.Table>
                     )}
                 </Style.Content>
+
             </Style.Body>
             <Style.Footer>
                 {/* Rodapé aqui */}
             </Style.Footer>
-        </Style.Container>
+        </Style.Container >
     );
 };
 
